@@ -1,0 +1,273 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <title>Reserva tu cita - Lavadero Sepúlveda</title>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+    <link rel="stylesheet" th:href="@{/css/styles.css}">
+</head>
+<body>
+<header>
+    <div class="container">
+        <div class="logo-container">
+            <img th:src="@{/images/logo.jpg}" alt="Logo Lavadero Sepúlveda" class="logo-img">
+            <div class="logo-text">Lavadero Sepúlveda</div>
+        </div>
+        <button class="menu-toggle" id="menuToggle">
+            <i class="fa fa-bars"></i>
+        </button>
+        <nav id="mainNav">
+            <a href="/" class="btn btn-white">Inicio</a>
+            <a href="/nueva-cita" class="btn btn-white">Reservar Cita</a>
+            <a href="/horario" class="btn btn-white">Horario</a>
+            <a href="/galeria" class="btn btn-white">Galería</a>
+            <a href="/productos" class="btn btn-white">Productos</a>
+            <a href="/tarifas" class="btn btn-white">Tarifas</a>
+        </nav>
+    </div>
+</header>
+
+<section class="hero">
+    <div class="container">
+        <h1>Reserva tu cita</h1>
+        <p>Selecciona el servicio que necesitas y elige la fecha y hora que mejor te convenga.</p>
+    </div>
+</section>
+
+<section class="container">
+    <div th:if="${error}" class="alert alert-danger" th:text="${error}"></div>
+
+    <div class="card">
+        <h2 class="card-title">Formulario de reserva</h2>
+
+        <form th:action="@{/guardar-cita}" th:object="${cita}" method="post" novalidate>
+            <div class="form-group">
+                <label for="nombre">Nombre completo:</label>
+                <input type="text" id="nombre" th:field="*{nombre}" th:class="${#fields.hasErrors('nombre')} ? 'field-error' : ''" required>
+                <div class="error-message" th:if="${#fields.hasErrors('nombre')}" th:errors="*{nombre}"></div>
+            </div>
+
+            <div class="form-group">
+                <label for="email">Email:</label>
+                <input type="email" id="email" th:field="*{email}"
+                       th:class="${#fields.hasErrors('email')} ? 'field-error' : ''"
+                       placeholder="Ej: ejemplo@ejemplo.com"
+                       pattern="[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$"
+                       title="Por favor, introduce un email válido"
+                       required>
+                <div class="error-message" th:if="${#fields.hasErrors('email')}" th:errors="*{email}"></div>
+            </div>
+
+            <div class="form-group">
+                <label for="telefono">Teléfono:</label>
+                <input type="tel" id="telefono" th:field="*{telefono}" th:class="${#fields.hasErrors('telefono')} ? 'field-error' : ''" placeholder="Ej: 658527186" required>
+                <div class="error-message" th:if="${#fields.hasErrors('telefono')}" th:errors="*{telefono}"></div>
+            </div>
+
+            <div class="form-group">
+                <label for="modeloVehiculo">Modelo del vehículo:</label>
+                <input type="text" id="modeloVehiculo" th:field="*{modeloVehiculo}" th:class="${#fields.hasErrors('modeloVehiculo')} ? 'field-error' : ''" placeholder="Ej: Toyota Corolla 2020" required>
+                <div class="error-message" th:if="${#fields.hasErrors('modeloVehiculo')}" th:errors="*{modeloVehiculo}"></div>
+            </div>
+
+            <!-- <div class="vehicle-buttons">
+                <h3>Selecciona el tipo de vehículo:</h3>
+                <div class="button-container">
+                    <button type="button" class="vehicle-btn active" data-vehicle-type="turismo">Turismo</button>
+                    <button type="button" class="vehicle-btn" data-vehicle-type="ranchera">Ranchera</button>
+                    <button type="button" class="vehicle-btn" data-vehicle-type="monovolumen">Monovolumen/SUV</button>
+                    <button type="button" class="vehicle-btn" data-vehicle-type="todoterreno">Todoterreno Grande</button>
+                    <button type="button" class="vehicle-btn" data-vehicle-type="furgoneta_pequena">Furgoneta Pequeña</button>
+                    <button type="button" class="vehicle-btn" data-vehicle-type="furgoneta_grande">Furgoneta Grande</button>
+                </div>
+            </div> -->
+
+            <div class="form-group">
+                <label for="tipoLavado">Selecciona el servicio:</label>
+                <select id="tipoLavado" th:field="*{tipoLavado}" th:class="${#fields.hasErrors('tipoLavado')} ? 'field-error' : ''" required>
+                    <option value="">-- Seleccione un servicio --</option>
+                    <option th:each="tipo : ${tiposLavado}"
+                            th:value="${tipo}"
+                            th:text="${tipo.descripcion + ' - ' + tipo.precio + '€'}"
+                            th:attr="data-vehicle-type=${tipo.toString().toLowerCase().contains('turismo') ? 'turismo' :
+                                                           tipo.toString().toLowerCase().contains('ranchera') ? 'ranchera' :
+                                                           tipo.toString().toLowerCase().contains('monovolumen') ? 'monovolumen' :
+                                                           tipo.toString().toLowerCase().contains('todoterreno') ? 'todoterreno' :
+                                                           tipo.toString().toLowerCase().contains('furgoneta_pequena') ? 'furgoneta_pequena' :
+                                                           tipo.toString().toLowerCase().contains('furgoneta_grande') ? 'furgoneta_grande' : 'all'}"
+                    ></option>
+                </select>
+                <div class="error-message" th:if="${#fields.hasErrors('tipoLavado')}" th:errors="*{tipoLavado}"></div>
+            </div>
+
+            <div class="form-row">
+                <div class="form-group">
+                    <label for="fecha">Fecha:</label>
+                    <input type="date" id="fecha" th:field="*{fecha}" th:class="${#fields.hasErrors('fecha')} ? 'field-error' : ''" required min="${#dates.format(#dates.createNow(), 'yyyy-MM-dd')}">
+                    <div class="error-message" th:if="${#fields.hasErrors('fecha')}" th:errors="*{fecha}"></div>
+                </div>
+
+                <div class="form-group">
+                    <label for="hora">Hora:</label>
+                    <select id="hora" th:field="*{hora}" th:class="${#fields.hasErrors('hora')} ? 'field-error' : ''" required>
+                        <option value="">-- Seleccione una hora --</option>
+                    </select>
+                    <div class="error-message" th:if="${#fields.hasErrors('hora')}" th:errors="*{hora}"></div>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <button type="submit" class="btn">Reservar Cita</button>
+            </div>
+        </form>
+    </div>
+</section>
+
+<footer>
+    <div class="container">
+        <div class="contact-info">
+            <p>C/Ingeniero Ruiz de Azua s/n Local 8, Córdoba</p>
+            <p>Teléfono: 658 527 186</p>
+            <p>Email: contacto@lavaderosepulveda.es</p>
+        </div>
+        <div class="social-links">
+            <a href="https://www.facebook.com/lavadero.sepulveda.96" target="_blank"><i class="fab fa-facebook-f"></i> Facebook</a>
+            <a href="https://www.twitter.com/LavaSepulveda" target="_blank"><i class="fab fa-twitter"></i> Twitter</a>
+            <a href="http://www.instagram.com/lavaderosepulveda" target="_blank"><i class="fab fa-instagram"></i> Instagram</a>
+        </div>
+        <p>&copy; 2025 Lavadero Sepúlveda - Todos los derechos reservados</p>
+        <p><a href="/policy" style="color: white; text-decoration: underline;">Política de Privacidad</a></p>
+    </div>
+</footer>
+
+<script th:inline="javascript">
+    document.addEventListener('DOMContentLoaded', function() {
+        // Menú responsive
+        const menuToggle = document.getElementById('menuToggle');
+        const mainNav = document.getElementById('mainNav');
+
+        if (menuToggle && mainNav) {
+            // Inicialmente, ocultar menú en móviles
+            if (window.innerWidth <= 768) {
+                mainNav.style.display = 'none';
+            }
+
+            menuToggle.addEventListener('click', function() {
+                if (mainNav.style.display === 'none' || mainNav.style.display === '') {
+                    mainNav.style.display = 'flex';
+                    mainNav.style.flexDirection = 'column';
+                } else {
+                    mainNav.style.display = 'none';
+                }
+            });
+
+            // Ajustar menú en cambio de tamaño de ventana
+            window.addEventListener('resize', function() {
+                if (window.innerWidth > 768) {
+                    mainNav.style.display = 'flex';
+                    mainNav.style.flexDirection = 'row';
+                } else {
+                    mainNav.style.display = 'none';
+                }
+            });
+        }
+
+        // Formulario de cita
+        const fechaInput = document.getElementById('fecha');
+        const horaSelect = document.getElementById('hora');
+        const emailInput = document.getElementById('email');
+        const tipoLavadoSelect = document.getElementById('tipoLavado');
+        const vehicleButtons = document.querySelectorAll('.vehicle-btn');
+
+        // Filtrar servicios por tipo de vehículo
+        function filterServicesByVehicleType(vehicleType) {
+            const options = tipoLavadoSelect.querySelectorAll('option');
+            options.forEach(option => {
+                if (option.value === '') {
+                    // Siempre mostrar la opción por defecto
+                    option.style.display = '';
+                } else {
+                    const optionVehicleType = option.getAttribute('data-vehicle-type');
+                    if (optionVehicleType === 'all' || optionVehicleType === vehicleType) {
+                        option.style.display = '';
+                    } else {
+                        option.style.display = 'none';
+                    }
+                }
+            });
+        }
+
+        // Inicializar filtros de servicios (mostrar Turismo por defecto)
+        filterServicesByVehicleType('turismo');
+
+        // Botones de tipo de vehículo
+        vehicleButtons.forEach(button => {
+            button.addEventListener('click', function() {
+                // Remover clase activa de todos los botones
+                vehicleButtons.forEach(btn => btn.classList.remove('active'));
+                // Agregar clase activa al botón seleccionado
+                this.classList.add('active');
+                // Filtrar servicios
+                filterServicesByVehicleType(this.getAttribute('data-vehicle-type'));
+                // Resetear selección de servicio
+                tipoLavadoSelect.value = '';
+            });
+        });
+
+        // Establecer fecha mínima como hoy
+        const hoy = new Date().toISOString().split('T')[0];
+        fechaInput.min = hoy;
+
+        // Validación adicional de email
+        emailInput.addEventListener('input', function() {
+            const emailRegex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
+            if (emailRegex.test(this.value)) {
+                this.classList.remove('field-error');
+                this.setCustomValidity('');
+            } else {
+                this.classList.add('field-error');
+                this.setCustomValidity('Por favor, introduce un email válido');
+            }
+        });
+
+        // Cargar horarios disponibles cuando cambie la fecha
+        fechaInput.addEventListener('change', function() {
+            if (this.value) {
+                fetch(`/horarios-disponibles?fecha=${this.value}`)
+                    .then(response => response.json())
+                    .then(horarios => {
+                        // Limpiar opciones actuales
+                        horaSelect.innerHTML = '<option value="">-- Seleccione una hora --</option>';
+
+                        // Agregar nuevas opciones
+                        horarios.forEach(hora => {
+                            const option = document.createElement('option');
+                            option.value = hora;
+                            option.textContent = hora.substring(0, 5); // Mostrar solo HH:MM
+                            horaSelect.appendChild(option);
+                        });
+
+                        // Si no hay horarios disponibles, mostrar mensaje
+                        if (horarios.length === 0) {
+                            const option = document.createElement('option');
+                            option.value = "";
+                            option.textContent = "No hay horarios disponibles para esta fecha";
+                            option.disabled = true;
+                            horaSelect.appendChild(option);
+                        }
+                    })
+                    .catch(error => console.error('Error al cargar horarios:', error));
+            }
+        });
+
+        // Si hay una fecha seleccionada al cargar la página, cargar horarios
+        if (fechaInput.value) {
+            fechaInput.dispatchEvent(new Event('change'));
+        }
+    });
+</script>
+</body>
+</html>
